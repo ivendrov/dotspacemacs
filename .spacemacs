@@ -490,6 +490,9 @@ before packages are loaded."
   ;; Load dark theme.
   (setq-default dotspacemacs-themes '(afternoon))
 
+  ;; Reverse scrolling direction
+  (setq mouse-wheel-flip-direction t)
+
 
   ;; Hide /italics/, *bold* markers etc.
   (setq org-hide-emphasis-markers t)
