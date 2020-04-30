@@ -32,7 +32,9 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+   '(html
+     rust
+     python
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -64,7 +66,7 @@ This function should only modify configuration layer settings."
    ;; To use a local version of a package, use the `:location' property:
    ;; '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages '( ox-hugo )
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -536,6 +538,12 @@ before packages are loaded."
   ;; Use visual line mode.
   (add-hook 'org-mode-hook 'visual-line-mode)
   (add-hook 'org-mode-hook 'org-indent-mode) ;; better wrapping for indented text.
+
+  ;; ox-hugo config
+  (use-package ox-hugo
+    :ensure t          ;Auto-install the package from Melpa (optional)
+    :after ox)
+
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -571,7 +579,7 @@ This function is called at the very end of Spacemacs initialization."
  '(org-roam-directory "~/Google Drive/org-journal/roam/")
  '(package-selected-packages
    (quote
-    (alect-themes org-roam emacsql-sqlite emacsql gnu-elpa-keyring-update org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-cliplink org-brain mmm-mode markdown-toc markdown-mode htmlize helm-org-rifle helm-org gnuplot gh-md evil-org ws-butler writeroom-mode visual-fill-column winum volatile-highlights vi-tilde-fringe uuidgen treemacs-projectile treemacs-persp treemacs ht pfuture toc-org symon symbol-overlay string-inflection spaceline-all-the-icons all-the-icons memoize spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode password-generator paradox spinner overseer org-bullets open-junk-file nameless move-text macrostep lorem-ipsum link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-xref helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile projectile helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio flycheck-package package-lint flycheck pkg-info epl let-alist flycheck-elsa flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state iedit evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens smartparens paredit evil-args evil-anzu anzu eval-sexp-fu elisp-slime-nav editorconfig dumb-jump f dash s devdocs define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup which-key use-package pcre2el org-plus-contrib hydra lv hybrid-mode font-lock+ evil goto-chg undo-tree dotenv-mode diminish bind-map bind-key async)))
+    (yasnippet web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode prettier-js impatient-mode simple-httpd helm-css-scss haml-mode emmet-mode company-web web-completion-data add-node-modules-path toml-mode flycheck-rust rust-mode ox-hugo yapfify stickyfunc-enhance pytest pyenv-mode py-isort pippel pipenv pyvenv pip-requirements lsp-python-ms live-py-mode importmagic epc ctable concurrent deferred helm-pydoc helm-gtags helm-cscope xcscope ggtags dap-mode lsp-treemacs bui lsp-mode dash-functional cython-mode counsel-gtags counsel swiper ivy company-anaconda company blacken anaconda-mode pythonic alect-themes org-roam emacsql-sqlite emacsql gnu-elpa-keyring-update org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-cliplink org-brain mmm-mode markdown-toc markdown-mode htmlize helm-org-rifle helm-org gnuplot gh-md evil-org ws-butler writeroom-mode visual-fill-column winum volatile-highlights vi-tilde-fringe uuidgen treemacs-projectile treemacs-persp treemacs ht pfuture toc-org symon symbol-overlay string-inflection spaceline-all-the-icons all-the-icons memoize spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode password-generator paradox spinner overseer org-bullets open-junk-file nameless move-text macrostep lorem-ipsum link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-xref helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile projectile helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio flycheck-package package-lint flycheck pkg-info epl let-alist flycheck-elsa flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state iedit evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens smartparens paredit evil-args evil-anzu anzu eval-sexp-fu elisp-slime-nav editorconfig dumb-jump f dash s devdocs define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup which-key use-package pcre2el org-plus-contrib hydra lv hybrid-mode font-lock+ evil goto-chg undo-tree dotenv-mode diminish bind-map bind-key async)))
  '(pdf-view-midnight-colors (quote ("#b2b2b2" . "#292b2e"))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -579,14 +587,14 @@ This function is called at the very end of Spacemacs initialization."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(fixed-pitch ((t (:family "Inconsolata" :slant normal :weight normal :height 1.0 :width normal))))
- '(org-document-title ((t (:inherit default :weight bold :foreground "#b2b2b2" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1" :height 2.0 :underline nil))))
- '(org-level-1 ((t (:inherit default :weight bold :foreground "#b2b2b2" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1" :height 1.75))))
- '(org-level-2 ((t (:inherit default :weight bold :foreground "#b2b2b2" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1" :height 1.5))))
- '(org-level-3 ((t (:inherit default :weight bold :foreground "#b2b2b2" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1" :height 1.25))))
- '(org-level-4 ((t (:inherit default :weight bold :foreground "#b2b2b2" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1" :height 1.1))))
- '(org-level-5 ((t (:inherit default :weight bold :foreground "#b2b2b2" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1"))))
- '(org-level-6 ((t (:inherit default :weight bold :foreground "#b2b2b2" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1"))))
- '(org-level-7 ((t (:inherit default :weight bold :foreground "#b2b2b2" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1"))))
- '(org-level-8 ((t (:inherit default :weight bold :foreground "#b2b2b2" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1"))))
+ '(org-document-title ((t (:inherit default :weight bold :foreground "#b2af95" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1" :height 2.0 :underline nil))))
+ '(org-level-1 ((t (:inherit default :weight bold :foreground "#b2af95" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1" :height 1.75))))
+ '(org-level-2 ((t (:inherit default :weight bold :foreground "#b2af95" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1" :height 1.5))))
+ '(org-level-3 ((t (:inherit default :weight bold :foreground "#b2af95" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1" :height 1.25))))
+ '(org-level-4 ((t (:inherit default :weight bold :foreground "#b2af95" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1" :height 1.1))))
+ '(org-level-5 ((t (:inherit default :weight bold :foreground "#b2af95" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1"))))
+ '(org-level-6 ((t (:inherit default :weight bold :foreground "#b2af95" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1"))))
+ '(org-level-7 ((t (:inherit default :weight bold :foreground "#b2af95" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1"))))
+ '(org-level-8 ((t (:inherit default :weight bold :foreground "#b2af95" :font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1"))))
  '(variable-pitch ((t (:font "-*-Optima-normal-normal-normal-*-14-*-*-*-p-0-iso10646-1")))))
 )
