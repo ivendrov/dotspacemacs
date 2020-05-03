@@ -553,7 +553,35 @@ before packages are loaded."
        :file-name "${slug}" ;; no timestamp in filename.
        :head "#+TITLE: ${title}\n#+SETUPFILE:./hugo_setup.org\n" ;; Add ox-hugo setup.
        :unnarrowed t)))
+
+  ;; Add backlinks to Hugo export.
+  (defun my/org-roam--backlinks-list-with-content (file)
+  (with-temp-buffer
+    (if-let* ((backlinks (org-roam--get-backlinks file))
+              (grouped-backlinks (--group-by (nth 0 it) backlinks)))
+        (progn
+          (dolist (group grouped-backlinks)
+            (let ((file-from (car group))
+                  (bls (cdr group)))
+              (insert (format "[[file:%s][%s]]\n"
+                              file-from
+                              (org-roam--get-title-or-slug file-from)))))))
+    (buffer-string)))
+
+  (defun my/org-export-preprocessor (backend)
+    (let ((links (my/org-roam--backlinks-list-with-content (buffer-file-name))))
+      (unless (string= links "")
+        (save-excursion
+          (goto-char (point-max))
+          (insert (concat "\n* Backlinks\n") links)))))
+
+  (add-hook 'org-export-before-processing-hook 'my/org-export-preprocessor)
+
+
+
   )
+
+
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
