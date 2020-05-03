@@ -544,6 +544,15 @@ before packages are loaded."
     :ensure t          ;Auto-install the package from Melpa (optional)
     :after ox)
 
+  ;; org-roam config
+  (setq org-roam-link-title-format "§:%s")  ;; identify self-links with cool unicode.
+
+  (setq org-roam-capture-templates
+    '(("d" "default" plain (function org-roam-capture--get-point)
+       "%?"
+       :file-name "${slug}" ;; no timestamp in filename.
+       :head "#+TITLE: ${title}\n#+SETUPFILE:./hugo_setup.org\n" ;; Add ox-hugo setup.
+       :unnarrowed t)))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
