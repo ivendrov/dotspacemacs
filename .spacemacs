@@ -475,7 +475,12 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (setq configuration-layer-elpa-archives '(("melpa" . "melpa.org/packages/")
                                             ("org" . "orgmode.org/elpa/")
                                             ("gnu" . "elpa.gnu.org/packages/")))
+
+  (setq org-agenda-files (list "~/GoogleDrive/org-journal/roam/"))
+
   )
+
+
 
 (defun dotspacemacs/user-load ()
   "Library to load while dumping.
@@ -555,7 +560,17 @@ before packages are loaded."
        :head "#+TITLE: ${title}\n#+SETUPFILE:./hugo_setup.org\n" ;; Add ox-hugo setup.
        :unnarrowed t)))
 
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; Add backlinks to Hugo export.
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+  ;; Checks whether a file has the "PUBLIC" flag set.
+  (defun is-public (file)
+    (with-current-buffer (find-file-noselect file)
+      (save-excursion
+        (goto-char (point-min))
+        (re-search-forward "# PUBLIC\n" nil t 1))))
+
   (defun my/org-roam--backlinks-list-with-content (file)
   (with-temp-buffer
     (if-let* ((backlinks (org-roam--get-backlinks file))
@@ -564,10 +579,40 @@ before packages are loaded."
           (dolist (group grouped-backlinks)
             (let ((file-from (car group))
                   (bls (cdr group)))
-              (insert (format "[[file:%s][%s]]\n"
-                              file-from
-                              (org-roam--get-title-or-slug file-from)))))))
+              (when (is-public file-from)
+                    (insert (format "[[file:%s][%s]]\n"
+                                  file-from
+                                  (org-roam--get-title-or-slug file-from)))
+                    (dolist (backlink bls)
+                      (pcase-let ((`(,file-from _ ,props) backlink))
+                        (insert (s-trim (s-replace "\n" " " (plist-get props :content))))
+                        (insert "\n\n"))))))))
     (buffer-string)))
+
+
+   (defun my/org-export-preprocessor (backend)
+     (let ((links (my/org-roam--backlinks-list-with-content (buffer-file-name))))
+       (unless (string= links "")
+         (save-excursion
+           (goto-char (point-max))
+           (insert (concat "\n* Backlinks\n") links)))))
+   (add-hook 'org-export-before-processing-hook 'my/org-export-preprocessor)
+
+
+   ;; Publish all public files script.
+   (require 'seq)
+   (defun publish ()
+     "Publish all files marked PUBLIC to Hugo"
+     (interactive)
+     (save-excursion
+       (mapc
+        (lambda (file)
+          (with-current-buffer
+              (find-file-noselect file)
+            (org-hugo-export-to-md)
+            file))
+        (seq-filter 'is-public (file-expand-wildcards "~/GoogleDrive/org-journal/roam/*.org")))))
+
 
   (use-package deft
     :after org
@@ -577,15 +622,27 @@ before packages are loaded."
     (deft-recursive t)
     (deft-use-filter-string-for-filename t)
     (deft-default-extension "org")
-    (deft-directory "~/Google Drive/org-journal/roam"))
+    (deft-directory "~/GoogleDrive/org-journal/roam"))
 
-  ;; (defun my/org-export-preprocessor (backend)
-  ;;   (let ((links (my/org-roam--backlinks-list-with-content (buffer-file-name))))
-  ;;     (unless (string= links "")
-  ;;       (save-excursion
-  ;;         (goto-char (point-max))
-  ;;         (insert (concat "\n* Backlinks\n") links)))))
-  ;; (add-hook 'org-export-before-processing-hook 'my/org-export-preprocessor)
+
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; org-mode agenda options                                                ;;
+  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;;open agenda in current window
+  (setq org-agenda-window-setup (quote current-window))
+  ;;warn me of any deadlines in next 7 days
+  (setq org-deadline-warning-days 7)
+  ;;show me tasks scheduled or due in next fortnight
+  (setq org-agenda-span (quote fortnight))
+  ;;don't show tasks as scheduled if they are already shown as a deadline
+  (setq org-agenda-skip-scheduled-if-deadline-is-shown t)
+  ;;don't give awarning colour to tasks with impending deadlines
+  ;;if they are scheduled to be done
+  (setq org-agenda-skip-deadline-prewarning-if-scheduled (quote pre-scheduled))
+  ;;don't show tasks that are scheduled or have deadlines in the
+  ;;normal todo list
+  (setq org-agenda-todo-ignore-deadlines (quote all))
+  (setq org-agenda-todo-ignore-scheduled (quote all))
 
 
 
@@ -623,7 +680,7 @@ This function is called at the very end of Spacemacs initialization."
      ("FIXME" . "#dc752f")
      ("XXX+" . "#dc752f")
      ("\\?\\?\\?+" . "#dc752f"))))
- '(org-roam-directory "~/Google Drive/org-journal/roam/")
+ '(org-roam-directory "~/GoogleDrive/org-journal/roam/")
  '(package-selected-packages
    (quote
     (deft yasnippet web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode prettier-js impatient-mode simple-httpd helm-css-scss haml-mode emmet-mode company-web web-completion-data add-node-modules-path toml-mode flycheck-rust rust-mode ox-hugo yapfify stickyfunc-enhance pytest pyenv-mode py-isort pippel pipenv pyvenv pip-requirements lsp-python-ms live-py-mode importmagic epc ctable concurrent deferred helm-pydoc helm-gtags helm-cscope xcscope ggtags dap-mode lsp-treemacs bui lsp-mode dash-functional cython-mode counsel-gtags counsel swiper ivy company-anaconda company blacken anaconda-mode pythonic alect-themes org-roam emacsql-sqlite emacsql gnu-elpa-keyring-update org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-mime org-download org-cliplink org-brain mmm-mode markdown-toc markdown-mode htmlize helm-org-rifle helm-org gnuplot gh-md evil-org ws-butler writeroom-mode visual-fill-column winum volatile-highlights vi-tilde-fringe uuidgen treemacs-projectile treemacs-persp treemacs ht pfuture toc-org symon symbol-overlay string-inflection spaceline-all-the-icons all-the-icons memoize spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode password-generator paradox spinner overseer org-bullets open-junk-file nameless move-text macrostep lorem-ipsum link-hint indent-guide hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation helm-xref helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile projectile helm-mode-manager helm-make helm-ls-git helm-flx helm-descbinds helm-ag google-translate golden-ratio flycheck-package package-lint flycheck pkg-info epl let-alist flycheck-elsa flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state iedit evil-goggles evil-exchange evil-escape evil-ediff evil-cleverparens smartparens paredit evil-args evil-anzu anzu eval-sexp-fu elisp-slime-nav editorconfig dumb-jump f dash s devdocs define-word column-enforce-mode clean-aindent-mode centered-cursor-mode auto-highlight-symbol auto-compile packed aggressive-indent ace-window ace-link ace-jump-helm-line helm avy helm-core popup which-key use-package pcre2el org-plus-contrib hydra lv hybrid-mode font-lock+ evil goto-chg undo-tree dotenv-mode diminish bind-map bind-key async)))
